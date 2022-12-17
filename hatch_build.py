@@ -16,13 +16,5 @@ def build_react():
 class CustomHook(BuildHookInterface):
 
     def initialize(self, *args, **kwargs):
-        print("CUSTOM HOOK!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(os.getcwd())
         shutil.rmtree("subsystems/app", ignore_errors=True)
         shutil.copytree("app/build", "subsystems/app")
-        #npm_builder(*args, **kwargs, source_dir="/app")
-        #build_react()
-        if self.target_name == 'wheel':
-            ...
-        elif self.target_name == 'sdist':
-            ...
