@@ -27,10 +27,8 @@ def parse_args(args=None):
 
     # Run frontend
     front = subparsers.add_parser('front', help='Launch front-end app')
-    front.add_argument('--app', dest='app_front', default=None, help="Import path to the app")
     front.add_argument('--host', dest='host_front', default=host_front, help="Host of the front-end app")
     front.add_argument('--port', dest='port_front', type=int, default=port_front, help="Port of the front-end app")
-    front.add_argument('--backend', dest='url_back', default=None, help="URL for backend API")
 
     # Run backend
     back = subparsers.add_parser('back', help='Launch back-end api and scheduler')
@@ -39,21 +37,23 @@ def parse_args(args=None):
     back.add_argument('--host', dest='host_back', default=host_back, help="Host of the back-end api")
     back.add_argument('--port', dest='port_back', type=int, default=port_back, help="Port of the back-end app")
 
-    back.add_argument('--frontends', dest='urls_fronts', default=None, type=str, nargs='+', help="URLs for frontends")
-
     # Run both
-    full = subparsers.add_parser('full', help='Launch front, back and the scheduler')
-    full.add_argument('--app', dest='app_front', default=None, help="Import path to the app")
-    full.add_argument('--api', dest='app_back', default=None, help="Import path to the API")
-    full.add_argument('--scheduler', dest='app_sched', default=None, help="Import path to the scheduler")
-
+    full = subparsers.add_parser('project', help='Launch front, back and the scheduler')
+    
     full.add_argument('--host-back', dest='host_back', default=host_back, help="Host of the back-end api")
     full.add_argument('--port-back', dest='port_back', type=int, default=port_back, help="Port of the back-end app")
     full.add_argument('--host-front', dest='host_front', default=host_front, help="Host of the back-end api")
     full.add_argument('--port-front', dest='port_front', type=int, default=port_front, help="Port of the back-end app")
 
-    full.add_argument('--backend', dest='url_back', default=None, help="URL for backend API")
-    full.add_argument('--frontends', dest='urls_front', default=None, type=str, nargs='+', help="URLs for frontends")
+    # Add arguments shared by all and back-end
+    for prs in (back, full):
+        prs.add_argument('--app', dest='app_front', default=None, help="Import path to the app")
+        prs.add_argument('--backend', dest='url_back', default=None, help="URL for backend API")
+
+    for prs in (front, full):
+        prs.add_argument('--scheduler', dest='app_sched', default=None, help="Import path to the scheduler")
+        prs.add_argument('--api', dest='app_back', default=None, help="Import path to the API")
+        prs.add_argument('--frontends', dest='urls_fronts', default=None, type=str, nargs='+', help="URLs for frontends")
 
     parser.set_defaults(
         host_back=host_back,
