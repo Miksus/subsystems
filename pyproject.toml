@@ -9,9 +9,7 @@ packages = ["subsystems"]
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.2"]
 build-function = "hatch_jupyter_builder.npm_builder"
-ensured-targets = [
-    #"app/static/src/App.js",
-]
+ensured-targets = []
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 path="app"
@@ -19,19 +17,24 @@ build_dir = "/subsystems/app"
 
 [tool.hatch.build.hooks.custom]
 
+[project.scripts]
+my-client = "subsystems.main_cli:main"
+
 [tool.hatch.build.targets.sdist]
 artifacts = [
-    "/app/build",
+    "/subsystems/app",
 ]
 include = [
+    "/subsystems/app/*",
     "/subsystems",
 ]
 
 [tool.hatch.build.targets.wheel]
 artifacts = [
-    "/app/build",
+    "/subsystems/app",
 ]
 include = [
+    "/subsystems/app/*",
     "/subsystems",
 ]
 [project]
