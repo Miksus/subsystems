@@ -33,7 +33,7 @@ class RocketryRoutes:
     async def get_session_parameters(self):
         return self.session.parameters
 
-    async def get_session_parameters(self, name):
+    async def get_session_parameter(self, name):
         return self.session.parameters[name]
 
     async def put_session_parameter(self, name:str, value):
@@ -139,18 +139,19 @@ def create_router(app:Rocketry, **kwargs):
     router.patch("/session/config", tags=["config"])(routes.patch_session_config)
 
     router.get("/session/parameters", tags=["parameters"])(routes.get_session_parameters)
-    router.get("/session/parameters/{name}", tags=["parameters"])(routes.get_session_parameters)
+    router.get("/session/parameters/{name}", tags=["parameters"])(routes.get_session_parameter)
     router.delete("/session/parameters/{name}", tags=["parameters"])(routes.delete_session_parameter)
 
     router.post("/session/shut_down", tags=["session"])(routes.shut_down_session)
 
     router.get("/tasks", response_model=List[TaskModel], tags=["task"])(routes.get_tasks)
+    router.get("/tasks/{task_name}", response_model=TaskModel, tags=["task"])(routes.get_task)
     router.patch("/tasks/{task_name}", tags=["task"])(routes.patch_task)
 
     router.post("/tasks/{task_name}/disable", tags=["task"])(routes.disable_task)
     router.post("/tasks/{task_name}/enable", tags=["task"])(routes.enable_task)
     router.post("/tasks/{task_name}/terminate", tags=["task"])(routes.terminate_task)
-    router.post("/tasks/{task_name}/enable", tags=["task"])(routes.run_task)
+    router.post("/tasks/{task_name}/run", tags=["task"])(routes.run_task)
 
     router.get("/logs", tags=["logs"])(routes.get_logs)
     router.post("/task/{task_name}/logs", tags=["task", "logs"])(routes.get_task_logs)
