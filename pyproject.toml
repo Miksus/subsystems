@@ -35,7 +35,7 @@ include = [
     "/subsystems",
 ]
 [project]
-name = "Subsystems"
+name = "subsystems"
 description = "Rocketry example: Rocketry & FastAPI"
 readme = "README.md"
 license = {file="LICENCE"}
