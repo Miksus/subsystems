@@ -12,7 +12,6 @@ from rocketry.args import TaskLogger, Config, EnvArg
 from rocketry.log import MinimalRecord
 
 from subsystems.utils.modules import load_instance
-from .tasks import example
 
 def setup_app(logger=TaskLogger(), config=Config(), env=EnvArg("ENV", default="dev")):
     "Set up the app"
@@ -39,6 +38,7 @@ def create_app(app:Union[Rocketry, str]=None):
 
         app.setup(func=setup_app)
 
+        from .tasks import example
         app.include_grouper(example.group)
     elif isinstance(app, str):
         # app is import path
