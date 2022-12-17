@@ -50,10 +50,9 @@ class Frontend:
 
     on_shutdown: Callable = None
 
-    def __init__(self, app:FastAPI, backend:str=None, **kwargs):
+    def __init__(self, app:FastAPI, **kwargs):
         self.app = app
         self.config = kwargs
-        self.backend = backend
 
     async def serve(self):
         self.server = self.create_server()

@@ -23,9 +23,6 @@ class Subsystems:
             **back_config,
         )
 
-        self.front.backend = self.back.get_url()
-        self.back.frontends = self.front.get_urls()
-
     def link(self, url_back:str=None, origins=None):
         "Set front-end to back-end's CORS origins and back-end as the API to front-end"
         if url_back is None:
