@@ -1,7 +1,6 @@
 import asyncio
-from typing import Callable, List
+from typing import Callable
 from fastapi import FastAPI
-from platformdirs import api
 from rocketry import Rocketry
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
