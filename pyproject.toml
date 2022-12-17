@@ -36,7 +36,7 @@ include = [
 ]
 [project]
 name = "subsystems"
-description = "Rocketry example: Rocketry & FastAPI"
+description = "Assembler for Pythonic back-end and Javascript front-end"
 readme = "README.md"
 license = {file="LICENCE"}
 authors = [
