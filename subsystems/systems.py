@@ -26,15 +26,15 @@ class Subsystems:
         self.front.backend = self.back.get_url()
         self.back.frontends = self.front.get_urls()
 
-    def link(self, url_back:str=None, urls_front=None):
+    def link(self, url_back:str=None, origins=None):
         "Set front-end to back-end's CORS origins and back-end as the API to front-end"
         if url_back is None:
             url_back = self.back.get_url()
-        if urls_front is None:
-            urls_front = self.front.get_urls()
+        if origins is None:
+            origins = self.front.get_urls()
 
         self.front.add_backend(url_back)
-        self.back.add_frontends(urls_front)
+        self.back.add_frontends(origins)
 
         self.front.on_shutdown = self.handle_exit
         self.back.on_shutdown = self.handle_exit

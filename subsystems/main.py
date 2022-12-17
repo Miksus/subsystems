@@ -14,7 +14,7 @@ def main(
     app_front=None, app_back=None, app_sched=None,
     host_front=None, port_front=None,
     host_back=None, port_back=None,
-    url_back=None, urls_front=None
+    url_back=None, origins=None
 ):
     hdlr = logging.StreamHandler()
     hdlr.setLevel(logging.INFO)
@@ -38,7 +38,7 @@ def main(
             "loop": "asyncio",
         }
     )
-    systems.link(url_back=url_back, urls_front=urls_front)
+    systems.link(url_back=url_back, origins=origins)
 
     if command == "front":
         front = systems.front

@@ -35,7 +35,7 @@ def parse_args(args=None):
     for prs in (back, full):
         prs.add_argument('--scheduler', dest='app_sched', default=None, help="Import path to the scheduler")
         prs.add_argument('--api', dest='app_back', default=None, help="Import path to the API")
-        prs.add_argument('--frontends', dest='urls_front', default=None, type=str, nargs='+', help="URLs for frontends")
+        prs.add_argument('--origins', dest='origins', default=None, type=str, nargs='+', help="URLs for frontends")
 
     for prs in (front, full):
         prs.add_argument('--app', dest='app_front', default=None, help="Import path to the app")

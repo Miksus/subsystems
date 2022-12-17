@@ -14,7 +14,7 @@ from subsystems.main_cli import parse_args
             'url_back':None,
             'app_sched':None,
             'app_back':None,
-            'urls_front':None,
+            'origins':None,
         }, id="project (defaults)"),
         pytest.param(["back"], {
             'command': 'back', 
@@ -22,7 +22,7 @@ from subsystems.main_cli import parse_args
             'host_front': 'localhost', 'port_front': 3000, 
             'app_back': None, 'app_sched': None, 
             #'app_front': None, 
-            'urls_front': None,
+            'origins': None,
         }, id="back (defaults)"),
         pytest.param(["front"], {
             'command': 'front', 
@@ -33,13 +33,13 @@ from subsystems.main_cli import parse_args
             'url_back': None
         }, id="front (defaults)"),
 
-        pytest.param(["back", "--host", "0.0.0.0", "--port", "8090", "--api", "myapi.myapp:app", "--scheduler", "mysched.myapp:app", "--frontends", "http://example.com"], {
+        pytest.param(["back", "--host", "0.0.0.0", "--port", "8090", "--api", "myapi.myapp:app", "--scheduler", "mysched.myapp:app", "--origins", "http://example.com", "https://example.com"], {
             'command': 'back', 
             'host_back': '0.0.0.0', 'port_back': 8090, 
             'host_front': 'localhost', 'port_front': 3000, 
             'app_back': "myapi.myapp:app", 'app_sched': "mysched.myapp:app", 
             #'app_front': None, 
-            'urls_front': ['http://example.com'],
+            'origins': ['http://example.com', 'https://example.com'],
         }, id="back"),
         pytest.param(["front", "--host", "0.0.0.0", "--port", "3100", "--app", "myfront.myapp:app", "--backend", "http://example.com"], {
             'command': 'front', 
