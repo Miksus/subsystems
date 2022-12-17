@@ -1,8 +1,7 @@
 import pytest
 from rocketry.conds import scheduler_cycles
 
-from subsystems.api import create_app as create_api
-from subsystems.scheduler import create_app as create_scheduler
+from subsystems.apps import create_api, create_scheduler
 from fastapi.testclient import TestClient
 
 

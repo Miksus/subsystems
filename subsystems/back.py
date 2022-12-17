@@ -1,53 +1,41 @@
 import asyncio
-from typing import Callable
+from typing import Callable, Optional
 from fastapi import FastAPI
 from rocketry import Rocketry
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+from .components import Layer
+
 from .servers import ServerCluster, SignalServer
-from .api import create_app as create_api
 
-class Backend:
+class Backend(Layer):
 
-    # Callbacks
-    on_shutdown: Callable = None
-
-    def __init__(self, api:FastAPI, scheduler:Rocketry, **kwargs):
-        self.api = api
+    def __init__(self, app:FastAPI, scheduler:Optional[Rocketry]=None, **kwargs):
+        self.app = app
         self.scheduler = scheduler
         self.config = kwargs
 
-    def create_server(self):
-        server = SignalServer(
-            uvicorn.Config(
-                app=self.api,
-                **self.config
-            ),
-            handle_exit=self.handle_exit
-        )
-        return server
-
     async def serve(self):
         self.server = self.create_server()
-        cluster = ServerCluster(
-            self.server, self.scheduler
-        )
-        #await self.server.serve()
-        await cluster.serve()
+        if self.scheduler is not None:
+            cluster = ServerCluster(
+                self.server, self.scheduler
+            )
+            await cluster.serve()
+        else:
+            await self.server.serve()
 
     def run(self):
         asyncio.run(self.serve())
 
     def handle_exit(self, server, sig:int, frame):
         self.scheduler.session.shut_down(force=server.force_exit)
-        if self.on_shutdown is not None:
-            self.on_shutdown(server, sig, frame)
-
+        super().handle_exit(server, sig, frame)
 
     def add_frontends(self, origins=None):
         "Add frontend to CORS"
-        self.api.add_middleware(
+        self.app.add_middleware(
             CORSMiddleware,
             allow_origins=origins,
             allow_credentials=True,
@@ -61,3 +49,9 @@ class Backend:
         host = config['host']
         port = config['port']
         return f'http://{host}:{port}'
+
+    @property
+    def frontends(self):
+        for mw in self.app.user_middleware:
+            if isinstance(mw, CORSMiddleware):
+                return mw.allow_origins

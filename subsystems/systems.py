@@ -1,27 +1,11 @@
 
-from .api import create_app as create_back_app
-from .scheduler import create_app as create_scheduler
-
-import uvicorn
-from .front import Frontend, create_app as create_front_app
-from .back import Backend, create_api
-from .servers import SignalServer as BackendServer, ServerCluster
-
+from .servers import ServerCluster
 
 class Subsystems:
 
-    def __init__(self, front, api, scheduler, front_config=None, back_config=None):
-        scheduler = create_scheduler(scheduler)
-
-        self.front = Frontend(
-            app=create_front_app(front),
-            **front_config,
-        )
-        self.back = Backend(
-            api=create_api(api, scheduler=scheduler),
-            scheduler=scheduler,
-            **back_config,
-        )
+    def __init__(self, front, back):
+        self.front = front
+        self.back = back
 
     def link(self, url_back:str=None, origins=None):
         "Set front-end to back-end's CORS origins and back-end as the API to front-end"

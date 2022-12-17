@@ -41,6 +41,8 @@ def parse_args(args=None):
         prs.add_argument('--app', dest='app_front', default=None, help="Import path to the app")
         prs.add_argument('--backend', dest='url_back', default=None, help="URL for backend API")
 
+        prs.add_argument('--react-build', dest='react_build', default=None, help="Path to the react build")
+
     parser.set_defaults(
         host_back=host_back,
         port_back=port_back,
