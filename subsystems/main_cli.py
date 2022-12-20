@@ -1,4 +1,5 @@
 import argparse
+import json
 from .main import main as _main
 
 def parse_args(args=None):
@@ -9,19 +10,18 @@ def parse_args(args=None):
     host_front = "localhost"
     port_front = 3000
 
-    parser = argparse.ArgumentParser(description='Run API and scheduler.')
+    parser = argparse.ArgumentParser(description='Subsystem CLI')
 
     subparsers = parser.add_subparsers(dest='command')
 
-    # Run frontend
-    front = subparsers.add_parser('front', help='Launch front-end app')
-    front.add_argument('--host', dest='host_front', default=host_front, help="Host of the front-end app")
-    front.add_argument('--port', dest='port_front', type=int, default=port_front, help="Port of the front-end app")
+    init = subparsers.add_parser('init', help='Create subsystem config file')
+    init.add_argument('template', default="rocketry")
 
     # Run backend
-    back = subparsers.add_parser('back', help='Launch back-end api and scheduler')
-    back.add_argument('--host', dest='host_back', default=host_back, help="Host of the back-end api")
-    back.add_argument('--port', dest='port_back', type=int, default=port_back, help="Port of the back-end app")
+    launch = subparsers.add_parser('launch', help='Launch an application')
+    launch.add_argument('app', type=str, nargs='*', help="Applications to start")
+    launch.add_argument('--config', default=None, help="Subsystem file")
+    launch.add_argument('--template', default=None, help="Premade subsystem to use")
 
     # Run both
     full = subparsers.add_parser('project', help='Launch front, back and the scheduler')
@@ -31,24 +31,11 @@ def parse_args(args=None):
     full.add_argument('--host-front', dest='host_front', default=host_front, help="Host of the back-end api")
     full.add_argument('--port-front', dest='port_front', type=int, default=port_front, help="Port of the back-end app")
 
-    # Add arguments shared by all and back-end
-    for prs in (back, full):
-        prs.add_argument('--scheduler', dest='app_sched', default=None, help="Import path to the scheduler")
-        prs.add_argument('--api', dest='app_back', default=None, help="Import path to the API")
-        prs.add_argument('--origins', dest='origins', default=None, type=str, nargs='+', help="URLs for frontends")
-
-    for prs in (front, full):
-        prs.add_argument('--app', dest='app_front', default=None, help="Import path to the app")
-        prs.add_argument('--backend', dest='url_back', default=None, help="URL for backend API")
-
-        prs.add_argument('--react-build', dest='react_build', default=None, help="Path to the react build")
-
-    parser.set_defaults(
-        host_back=host_back,
-        port_back=port_back,
-        host_front=host_front,
-        port_front=port_front,
-    )
+    parsed, unknown = parser.parse_known_args(args)
+    # Add unknown arguments to launch
+    for arg in unknown:
+        if arg.startswith(("-", "--")):
+            launch.add_argument(arg.split('=')[0], type=str)
 
     args = parser.parse_args(args)
     return args

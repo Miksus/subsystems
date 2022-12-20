@@ -1,65 +1,102 @@
+import asyncio
+from typing import TYPE_CHECKING, Dict, Optional, Union
 from pathlib import Path
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, HTMLResponse
-from subsystems.utils.modules import load_instance
-from rocketry import Rocketry
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from rocketry import Rocketry
 
 from subsystems.utils.modules import load_instance
+from subsystems.utils.server import _disable_signals
+from .api.router import create_rocketry_routes
 
-from .api.router import create_router
-from .scheduler import create_app as create_scheduler
+if TYPE_CHECKING:
+    from subsystems.systems import Server
 
-PATH_REACT_APP = Path(__file__).parent / "app" / "index.html"
+class StaticApp(FastAPI):
 
-def create_api(app:FastAPI=None, scheduler:Rocketry=None, **kwargs):
+    def __init__(self, *args, path:Union[str, Path], static_path:Union[str, Path]=None, static_route:str="/static", custom_routes=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.static_path = static_path
+        self.content = Path(path).read_text()
+        self.static_route = static_route
+        self.custom_routes = custom_routes if custom_routes is not None else {}
 
-    if app is None:
-        app = FastAPI(
-            title="Rocketry with FastAPI",
-            description="This is a REST API for a scheduler. It uses FastAPI as the web framework and Rocketry for scheduling."
-        )
-    elif isinstance(app, str):
-        app = load_instance(app, default="app")
+        self._set_prebuilt_routes()
 
-    # Add routers
-    # -----------
+    def _set_prebuilt_routes(self):
+        if self.static_path is not None:
+            self.mount(self.static_route, StaticFiles(directory=self.static_path), name="static")
+        
+        @self.get("/")
+        async def get_root(request: Request):
+            return HTMLResponse(self.content)
 
-    app.include_router(create_router(scheduler), **kwargs)
-    return app
+        @self.get("/{full_path:path}")
+        async def get_page(request: Request, full_path: str=None):
+            #return RedirectResponse(url="/index.html")
+            if full_path in self.custom_routes:
+                content = self.custom_routes[full_path]
+                return HTMLResponse(content) if isinstance(content, str) else JSONResponse(content)
+            return HTMLResponse(self.content)
+        
 
-def create_react_app(app:FastAPI, path:Path):
-    react_path = path.parent
-    app_content = path.read_text()
 
-    app.mount("/static", StaticFiles(directory=react_path / "static"), name="static")
+class RocketryAPI(FastAPI):
 
-    @app.get("/")
-    async def get_root(request: Request):
-        return HTMLResponse(app_content)
+    def __init__(self, *args, scheduler:Rocketry, route_config:Optional[dict]=None, origins=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if isinstance(scheduler, str):
+            scheduler = load_instance(scheduler)
+        self._set_prebuilt_routes(scheduler, route_config)
+        self._set_custom_middleware(origins=origins)
 
-    @app.route("/{full_path:path}")
-    async def get_page(request: Request, full_path: str=None):
-        #return RedirectResponse(url="/index.html")
-        return HTMLResponse(app_content)
-    return app
+    def _set_prebuilt_routes(self, scheduler, config):
+        if config is None:
+            config = {}
+        self.include_router(create_rocketry_routes(scheduler), **config)
 
-def create_app(app=None, react_build:Path=None):
+    def _set_custom_middleware(self, origins):
+        print(origins)
+        if origins is not None:
+            self.add_middleware(
+                CORSMiddleware,
+                allow_origins=origins,
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
 
-    if app is None:
-        app = FastAPI()
-    elif isinstance(app, str):
-        app = load_instance(app, default="app")
-
-    @app.get("/_configs")
-    async def get_page(request: Request, full_path: str=None):
-        return JSONResponse(app.extra)
-
-    if react_build is not None:
-        app = create_react_app(app, path=Path(react_build))
-    else:
-        app = create_react_app(app, path=PATH_REACT_APP)
+class ClusterApp:
     
-    return app
+    def __init__(self, apps:Dict[str, 'Server']):
+        self.apps = apps
+
+    async def serve(self, *args, **kwargs):
+        tasks = []
+        for name, app in self.apps.items():
+            task = asyncio.create_task(app.serve(*args, **kwargs))
+            tasks.append(task)
+        await asyncio.wait(tasks)
+    
+    def run(self):
+        asyncio.run(self.serve())
+
+    @classmethod
+    def from_config(cls, **kwargs):
+        from .config import AppConfig
+        apps = {}
+        for name, conf in kwargs.items():
+            app = AppConfig(**conf).create()
+            apps[name] = app
+        return cls(apps)
+
+    def handle_exit(self, *args, **kwargs):
+        print(self.apps)
+        for system in self.apps.values():
+            serv = system.server
+            if hasattr(serv, "handle_exit"):
+                serv.handle_exit(*args, **kwargs)
+            else:
+                serv.session.shut_down(force=True)

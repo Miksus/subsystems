@@ -1,17 +1,26 @@
 import pytest
 from rocketry.conds import scheduler_cycles
+from rocketry import Rocketry
 
-from subsystems.apps import create_api, create_scheduler
+from subsystems.apps import RocketryAPI
+#from subsystems.apps import create_api, create_scheduler
 from fastapi.testclient import TestClient
 
+def do_success():
+    ...
 
 @pytest.fixture()
 def scheduler():
-    return create_scheduler()
+    app = Rocketry()
+    app.params(myparam="hello")
+    app.task(start_cond="every 10 seconds", func=do_success, name="do_short")
+    app.task(start_cond="every 10 seconds", func=do_success, name="do_stuff")
+    app.task(start_cond="every 10 seconds", func=do_success, name="do_things")
+    return app
 
 @pytest.fixture()
 def api(scheduler):
-    app = create_api(scheduler=scheduler)
+    app = RocketryAPI(scheduler=scheduler)
     return app
 
 @pytest.fixture()
@@ -39,7 +48,7 @@ def test_get_params(client):
     assert response.status_code == 200
 
     body = response.json()
-    assert body == {}
+    assert body == {"myparam": "hello"}
 
 def test_post_task_run(client):
     resp = client.get("/tasks/do_short")

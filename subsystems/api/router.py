@@ -130,7 +130,7 @@ class RocketryRoutes:
     def session(self):
         return self.app.session
 
-def create_router(app:Rocketry, **kwargs):
+def create_rocketry_routes(app:Rocketry, **kwargs):
     router = APIRouter(**kwargs)
 
     routes = RocketryRoutes(app)

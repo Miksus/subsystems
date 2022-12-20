@@ -1,11 +1,13 @@
 import importlib
 
-def load_instance(s:str, default):
+def load_instance(s:str):
     parts = s.split(":", 1)
     if len(parts) == 1:
-        module_name = parts[0]
-        instance_name = default
-    else:
-        module_name, instance_name = parts
-    module = importlib.import_module(module_name)
-    return getattr(module, instance_name)
+        # Assumes the last dot is the instance ie. "fastapi.FastAPI"
+        parts = s.rsplit(".", 1)
+    mdl_name, cls_name = parts
+
+
+    mld = importlib.import_module(mdl_name)
+    inst = getattr(mld, cls_name)
+    return inst
