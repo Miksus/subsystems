@@ -3,6 +3,8 @@ import signal
 from threading import Thread
 from textwrap import dedent
 import sys
+import uuid
+from pathlib import Path
 
 import pytest
 import requests
@@ -65,6 +67,8 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
     ]
 )
 def test_flask(tmpdir, request, tmpsyspath, server):
+    tmpsyspath.append(str(tmpdir))
+    randstr = uuid.uuid4().hex
     test_name = request.node.originalname
     module_name = f"config_{test_name}"
 
@@ -102,4 +106,4 @@ def test_flask(tmpdir, request, tmpsyspath, server):
         assert output.status_code == 200
         assert output.text == 'Hello world'
     finally:
-        signal.raise_signal(signal.SIGINT)
+        systems["backend"].handle_exit()
