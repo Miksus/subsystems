@@ -10,8 +10,11 @@ ROOT = Path(__file__).parent
 DEFAULT_CONF = "subsystems.yaml"
 
 def init_subsystems(tmpl):
+    filename = DEFAULT_CONF
     content = get_template(tmpl)
-    file = Path(DEFAULT_CONF)
+    file = Path(filename)
+    if file.exists():
+        raise FileExistsError(f"File {filename!r} already exists")
     file.write_text(content)
 
 
