@@ -19,6 +19,8 @@ jobs:
   run-tests:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    env:
+      SKIP_HATCH_NPM_BUILDER: yes
     timeout-minutes: 10
     
     strategy:
