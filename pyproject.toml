@@ -6,16 +6,11 @@ build-backend = "hatchling.build"
 packages = ["subsystems"]
 
 [tool.hatch]
-[tool.hatch.build.hooks.jupyter-builder]
-dependencies = ["hatch-jupyter-builder>=0.2"]
-build-function = "hatch_jupyter_builder.npm_builder"
-ensured-targets = []
-
-[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
-path="app"
-build_dir = "/subsystems/app"
 
 [tool.hatch.build.hooks.custom]
+source="app"
+target="subsystems/app"
+skip_exist=false
 
 [project.scripts]
 my-client = "subsystems.main_cli:main"
