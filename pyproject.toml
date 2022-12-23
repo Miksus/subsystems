@@ -68,6 +68,7 @@ test = [
     "fastapi",
     "uvicorn[standard]",
     "gunicorn",
+    "waitress",
 ]
 
 docs = [
