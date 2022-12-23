@@ -6,7 +6,7 @@ import sys
 
 import pytest
 import requests
-import hypercorn
+
 
 from subsystems.config import Config
 from subsystems.systems import Subsystems
