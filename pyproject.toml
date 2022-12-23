@@ -64,6 +64,10 @@ test = [
     "requests",
     "httpx",
     "pytest-asyncio",
+    "flask",
+    "fastapi",
+    "uvicorn[standard]",
+    "gunicorn",
 ]
 
 docs = [
