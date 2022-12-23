@@ -46,6 +46,7 @@ dynamic = ["version"]
 dependencies = [
     'rocketry', 
     'fastapi',
+    "jinja2",
     'uvicorn[standard]',
     'sqlalchemy'
 ]
