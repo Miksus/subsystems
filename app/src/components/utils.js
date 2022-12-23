@@ -14,7 +14,7 @@ class BackEnd {
 
     async getData() {
         if (!this.#data) {
-            this.#data = await fetch("/_configs").then(async function(response) {
+            this.#data = await fetch("/_config").then(async function(response) {
                 if (!response.ok) {
                     throw new Error("HTTP status " + response.status);
                 }
@@ -28,7 +28,7 @@ class BackEnd {
 
     async getHost() {
         const data = await this.getData();
-        return data.backend
+        return data.backend_url
     } 
 }
 
