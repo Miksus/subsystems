@@ -11,13 +11,6 @@ import hypercorn
 from subsystems.config import Config
 from subsystems.systems import Subsystems
 
-@pytest.fixture()
-def tmpsyspath(tmpdir):
-    orig_paths = sys.path.copy()
-    sys.path.append(str(tmpdir))
-    yield sys.path
-    sys.path = orig_paths
-
 @pytest.mark.parametrize("server",
     [
         'uvicorn.Server',
@@ -68,7 +61,7 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
     [
         'werkzeug.serving.make_server',
         'waitress.create_server',
-        'gunicorn.app.wsgiapp.WSGIApplication'
+        'gunicorn.app.wsgiapp.WSGIApplication',
     ]
 )
 def test_flask(tmpdir, request, tmpsyspath, server):

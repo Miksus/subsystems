@@ -7,12 +7,6 @@ import pytest
 from subsystems.main_cli import parse_args, main
 import subsystems
 
-@pytest.fixture()
-def tmpsyspath():
-    orig_paths = sys.path.copy()
-    yield sys.path
-    sys.path = orig_paths
-
 @pytest.mark.parametrize("args,output",
     [
         pytest.param(["init", 'rocketry'], {
