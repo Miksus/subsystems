@@ -84,14 +84,14 @@ docs = [
 source = ["subsystems"]
 branch = false
 omit = [
-    "test/*",
+    "tests/*",
     "_version.py"
 ]
 data_file = "cov_data/.coverage"
 
 [tool.coverage.report]
 omit = [
-    "subsystems/test/*",
+    "subsystems/tests/*",
     "subsystems/_version.py",
     "subsystems/__main__.py"
 ]
