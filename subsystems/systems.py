@@ -1,8 +1,9 @@
 import asyncio
 import threading
 import signal
-from typing import Dict, Type, Union
+from typing import Dict
 
+from .servers import ServerBase
 from subsystems.utils.modules import load_instance
 
 HANDLED_SIGNALS = (
@@ -10,77 +11,9 @@ HANDLED_SIGNALS = (
     signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
 )
 
-
-
-class Server:
-    "Abstracted server"
-
-    def __init__(self, app, cls:Type=None, config:dict=None):
-        self.app = app
-        self.cls = cls
-        self.config = config
-
-        self.server = self.get_server()
-
-    def get_server(self):
-        if self._is_instance("uvicorn.Server"):
-            import uvicorn
-            return self.cls(uvicorn.Config(app=self.app, **self.config))
-        elif self._is_instance("hypercorn.run.run"):
-            import hypercorn
-            return self.cls(hypercorn.Config.from_mapping(application_path=self.app, **self.config))
-        elif self._is_instance("waitress.create_server"):
-            return self.cls(application=self.app, **self.config)
-        elif self.cls is None:
-            # Expecting the app can run itself
-            return self.app
-        return self.cls(app=self.app, **self.config)
-
-    def _is_instance(self, mdl):
-        try:
-            return self.cls is load_instance(mdl)
-        except ImportError:
-            return False
-
-    def _is_hypercorn(self):
-        try:
-            from hypercorn.run import run as run_hypercorn
-            return self.cls is run_hypercorn
-        except ImportError:
-            return False
-
-    async def serve(self, *args, **kwargs):
-        server = self.server
-        await server.serve(*args, **kwargs)
-
-    def run(self, *args, **kwargs):
-        server = self.server
-        if hasattr(server, "run"):
-            server.run(*args, **kwargs)
-        elif hasattr(server, "serve_forever"):
-            server.serve_forever(*args, **kwargs)
-        else:
-            asyncio.run(self.serve(*args, **kwargs))
-
-    def handle_exit(self, *args, **kwargs):
-        server = self.server
-        if hasattr(server, "handle_exit"):
-            server.handle_exit(*args, **kwargs)
-        elif hasattr(server, "shutdown"):
-            server.shutdown()
-        elif hasattr(server, "close"):
-            server.close()
-        else:
-            raise TypeError("Cannot close server:", server)
-
-    @classmethod
-    def from_config(cls, **kwargs):
-        return cls(**kwargs)
-
-
 class Subsystems:
 
-    def __init__(self, **systems:Dict[str, Server]):
+    def __init__(self, **systems:Dict[str, ServerBase]):
         self.systems = systems
 
     def handle_exit(self, *args, **kwargs):
@@ -102,7 +35,7 @@ class Subsystems:
     def run(self):
         asyncio.run(self.serve())
 
-    def __getitem__(self, name) -> Server:
+    def __getitem__(self, name) -> ServerBase:
         "Get name of the app"
         if isinstance(name, str):
             return self.systems[name]

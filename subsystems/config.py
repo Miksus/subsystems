@@ -9,7 +9,8 @@ from pydantic import BaseModel, Field, Extra
 from jinja2 import Environment
 
 from subsystems.utils.modules import load_instance
-from .systems import Subsystems, Server
+from .systems import Subsystems
+from .servers import create_server, get_server_class
 
 ROOT = Path(__file__).parent
 PATH_APP = ROOT / "app"
@@ -37,15 +38,31 @@ class ServerConfig(BaseModel):
         extra = Extra.allow
     
     type: str = Field(description="Type of the server to run the instance")
+    use_path: Optional[bool] = None
 
-    def create(self, app):
+    def create(self, app_instance=None, app_path=None):
         type = self.type
         if type in SERVER_ALIASES:
             type = SERVER_ALIASES[type]
-        config = self.dict(exclude={"type"})
+        config = self.dict(exclude={"type", "use_path"})
         if "port" in config:
             config["port"] = int(config['port'])
-        return Server(app=app, cls=load_instance(type), config=config)
+        return create_server(app_instance=app_instance, app_path=app_path, cls_name=type, config=config)
+
+    @property
+    def use_path_only(self):
+        if self.use_path is not None:
+            return self.use_path
+        
+        type = self.type
+        if type is not None:
+            try:
+                cls = get_server_class(type)
+            except KeyError:
+                pass
+            else:
+                return not cls.use_instance
+        return False
 
 class InstanceConfig(BaseModel):
     class Config:
@@ -53,21 +70,21 @@ class InstanceConfig(BaseModel):
     
     type: Optional[str] = Field(description="Type of the instance/app")
     instance: Optional[str] = Field(description="Import path for the app instance")
-    lazy_load: bool = False
 
     def create(self, **kwargs):
         "Create the instance"
         if self.instance is not None:
-            if self.lazy_load:
-                return self.instance
-            else:
-                return load_instance(self.instance)
+            return load_instance(self.instance)
+
         type = self.type
         if type in APP_ALIASES:
             type = APP_ALIASES[type]
         cls = load_instance(type)
         params = self.dict(exclude={"type", "instance", "lazy_load"})
         return self.initiate(cls, **params, **kwargs)
+
+    def get_path(self):
+        return self.instance
 
     def initiate(self, cls, **kwargs):
         if hasattr(cls, "from_config"):
@@ -79,12 +96,12 @@ class AppConfig(BaseModel):
     server: Optional[ServerConfig] = Field(description="Server to run the instance")
 
     def create(self):
-        instance = self.app.create()
-        if self.server is not None:
-            app = self.server.create(app=instance)
+        if self.server.use_path_only:
+            server = self.server.create(app_path=self.app.get_path())
         else:
-            app = Server(app=instance, cls=None, config=None)
-        return app
+            instance = self.app.create(use_path=self.server.use_path_only)
+            server = self.server.create(app_instance=instance)
+        return server
 
 class Config(BaseModel):
     apps: Dict[str, AppConfig]
