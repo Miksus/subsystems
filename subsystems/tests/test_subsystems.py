@@ -68,6 +68,11 @@ def test_fastapi(tmpdir, request, tmpsyspath, port, server):
 def test_flask(tmpdir, request, tmpsyspath, server, port):
     if server.startswith("gunicorn") and sys.platform == "win32":
         pytest.skip(reason="Gunicorn not supported on Windows")
+
+    kwds = {}
+    if server.startswith("waitress"):
+        kwds = {"clear_untrusted_proxy_headers": True}
+
     tmpsyspath.append(str(tmpdir))
     randstr = uuid.uuid4().hex
     module_name = f"config_{randstr}"
@@ -92,7 +97,8 @@ def test_flask(tmpdir, request, tmpsyspath, server, port):
                     "server": {
                         "type": server,
                         'host': 'localhost',
-                        'port': f"{port}"
+                        'port': f"{port}",
+                        **kwds
                     }
                 }
             }
