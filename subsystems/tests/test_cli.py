@@ -60,7 +60,7 @@ def test_init(tmpdir):
     pytest.param("template", id="use template"),
     pytest.param("init", id="use init")
 ])
-def test_launch(tmpdir, tmpsyspath, how):
+def test_launch(tmpdir, tmpsyspath, how, port):
     tmpsyspath.append(str(tmpdir))
     mdl_name = uuid.uuid4().hex
     sched_file = tmpdir.join(f"{mdl_name}.py")
@@ -85,8 +85,8 @@ def test_launch(tmpdir, tmpsyspath, how):
 
     with tmpdir.as_cwd():
         if how == "template":
-            main(["launch", "backend", "--template", "rocketry", "--scheduler", f"{mdl_name}:app"])
+            main(["launch", "backend", "--template", "rocketry", "--scheduler", f"{mdl_name}:app", "--port_back", str(port)])
         elif how == "init":
             main(["init", "rocketry"])
-            main(["launch", "backend", "--scheduler", f"{mdl_name}:app"])
+            main(["launch", "backend", "--scheduler", f"{mdl_name}:app", "--port_back", str(port)])
         assert Path("status.txt").is_file()
