@@ -14,10 +14,6 @@ import requests
 from subsystems.config import Config
 from subsystems.systems import Subsystems
 
-@pytest.fixture()
-def port():
-    return random.randint(10000, 65534)
-
 @pytest.mark.parametrize("server",
     [
         'uvicorn.Server',

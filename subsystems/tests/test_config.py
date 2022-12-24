@@ -149,7 +149,7 @@ def test_scheduler(tmpdir, request):
     pytest.param("werkzeug", "Flask", "werkzeug.serving.BaseWSGIServer", "flask.Flask", id="werkzeug (Flask)"),
     pytest.param(None, "Rocketry", "rocketry.Rocketry", "rocketry.Rocketry", id="rocketry"),
 ])
-def test_aliases(server, app, server_cls, app_cls):
+def test_aliases(server, app, server_cls, app_cls, port):
     if server is None:
         systems = Config.parse(
             {
@@ -175,7 +175,7 @@ def test_aliases(server, app, server_cls, app_cls):
                         "server": {
                             "type": server,
                             "host": "localhost",
-                            "port": 8080
+                            "port": port
                         }
                     }
                 }
