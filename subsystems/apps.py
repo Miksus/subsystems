@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException
 from rocketry import Rocketry
+from subsystems.config import InstanceConfig
 
 from subsystems.utils.modules import load_instance
 from subsystems.utils.server import _disable_signals
@@ -50,22 +51,37 @@ class StaticApp(FastAPI):
                 return static_resp
 
 
-class RocketryAPI(FastAPI):
+class AutoAPI(FastAPI):
+    arg_server = '__server__'
 
-    def __init__(self, *args, scheduler:Rocketry, route_config:Optional[dict]=None, origins=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        if isinstance(scheduler, str):
-            scheduler = load_instance(scheduler)
+    def __init__(self, scheduler:Rocketry, origins=None, route_config=None, **kwargs):
+        self.scheduler = scheduler
+
+        super().__init__(scheduler=scheduler, **kwargs)
+        self._set_events(scheduler)
         self._set_prebuilt_routes(scheduler, route_config)
-        self._set_custom_middleware(origins=origins)
+
+        if origins:
+            self.add_origins(origins)
 
     def _set_prebuilt_routes(self, scheduler, config):
         if config is None:
             config = {}
         self.include_router(create_rocketry_routes(scheduler), **config)
 
-    def _set_custom_middleware(self, origins):
-        print(origins)
+    def _set_events(self, scheduler):
+        @self.on_event("startup")
+        async def start():
+            await scheduler.serve()
+
+        @self.on_event("shutdown")
+        async def shutdown():
+            await scheduler.session.shut_down()
+
+    def add_server(self, serv):
+        self.scheduler.params(**{self.arg_server: serv})
+
+    def add_origins(self, origins):
         if origins is not None:
             self.add_middleware(
                 CORSMiddleware,
@@ -74,6 +90,13 @@ class RocketryAPI(FastAPI):
                 allow_methods=["*"],
                 allow_headers=["*"],
             )
+
+    @classmethod
+    def from_config(cls, **kwargs):
+        sched = kwargs.get('scheduler')
+        if sched is not None:
+            kwargs['scheduler'] = InstanceConfig(**sched).create()
+        return cls(**kwargs)
 
 class ClusterApp:
     

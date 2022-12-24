@@ -2,7 +2,7 @@ import pytest
 from rocketry.conds import scheduler_cycles
 from rocketry import Rocketry
 
-from subsystems.apps import RocketryAPI
+from subsystems.apps import AutoAPI
 #from subsystems.apps import create_api, create_scheduler
 from fastapi.testclient import TestClient
 
@@ -20,7 +20,7 @@ def scheduler():
 
 @pytest.fixture()
 def api(scheduler):
-    app = RocketryAPI(scheduler=scheduler)
+    app = AutoAPI(scheduler=scheduler)
     return app
 
 @pytest.fixture()

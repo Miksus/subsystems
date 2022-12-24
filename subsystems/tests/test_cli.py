@@ -71,6 +71,7 @@ def test_launch(tmpdir, tmpsyspath, how):
         from pathlib import Path
         from rocketry import Rocketry
         from rocketry.conds import true, scheduler_cycles
+        from rocketry.args import Arg
         app = Rocketry()
         app.session.config.shut_cond = scheduler_cycles(1)
 
@@ -79,15 +80,15 @@ def test_launch(tmpdir, tmpsyspath, how):
             Path("status.txt").write_text("Did run")
 
         @app.task(on_shutdown=True)
-        def cause_interupt():
-            signal.raise_signal(signal.SIGINT)
+        def cause_interupt(server=Arg('__server__')):
+            server.should_exit = True
 
     """))
 
     with tmpdir.as_cwd():
         if how == "template":
-            main(["launch", "--template", "rocketry", "--scheduler", f"{mdl_name}:app"])
+            main(["launch", "backend", "--template", "rocketry", "--scheduler", f"{mdl_name}:app"])
         elif how == "init":
             main(["init", "rocketry"])
-            main(["launch", "--scheduler", f"{mdl_name}:app"])
+            main(["launch", "backend", "--scheduler", f"{mdl_name}:app"])
         assert Path("status.txt").is_file()

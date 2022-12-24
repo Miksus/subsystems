@@ -35,6 +35,8 @@ class ServerBase:
         self.config = config
 
         self.instance = self.create()
+        if hasattr(self.app_instance, "add_server"):
+            self.app_instance.add_server(self.instance)
 
     def create(self):
         ...
