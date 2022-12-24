@@ -89,7 +89,7 @@ class HypercornServer(ServerBase):
         return run(application=self.app_path, **self.config)
 
     def handle_exit(self, *args, **kwargs):
-        self.instance.close(*args, **kwargs)
+        raise TypeError("Cannot shut down Hypercorn server")
 
 # Flask Servers
 # -------------
@@ -128,7 +128,7 @@ class GunicornServer(ServerBase):
         return GunicornApplication(app_uri=self.app_path, **self.config)
 
     def handle_exit(self, *args, **kwargs):
-        signal.raise_signal(signal.SIGINT)
+        raise TypeError("Cannot shut down Gunicorn server")
 
 register_server(UvicornServer, aliases=["uvicorn", "uvicorn.Server"])
 register_server(WaitressServer, aliases=["waitress", "waitress.create_server"])
