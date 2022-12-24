@@ -15,20 +15,15 @@ apps:
 
   backend:
     app:
-      type: 'subsystems.apps.ClusterApp'
-      api: 
-        app:
-          type: 'subsystems.apps.RocketryAPI'
-          scheduler: '${{ scheduler }}'
-          origins: 
-            - "http://${{ host_front or 'localhost' }}:${{ port_front or '3000' }}"
-            - "https://${{ host_front or 'localhost' }}:${{ port_front or '3000' }}"
-        server:
-          type: 'uvicorn.Server'
-          workers: 1
-          host: "${{ host_back or '127.0.0.1' }}"
-          port: "${{ port_back or '8080' }}"
-          loop: 'asyncio'
+      type: 'subsystems.apps.AutoAPI'
+      origins: 
+        - "http://${{ host_front or 'localhost' }}:${{ port_front or '3000' }}"
+        - "https://${{ host_front or 'localhost' }}:${{ port_front or '3000' }}"
       scheduler:
-        app:
-          instance: '${{ scheduler }}'
+        instance: '${{ scheduler }}'
+    server:
+      type: 'uvicorn.Server'
+      workers: 1
+      host: "${{ host_back or '127.0.0.1' }}"
+      port: "${{ port_back or '8080' }}"
+      loop: 'asyncio'
