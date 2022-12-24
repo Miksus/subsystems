@@ -67,6 +67,8 @@ class BuildConfig:
     build: str = "build"
     skip_exist: bool = False
 
+    index: str = None # Placeholder for build skipped tests
+
 
 class CustomHook(BuildHookInterface):
 
@@ -80,6 +82,11 @@ class CustomHook(BuildHookInterface):
         LOGGER.info(f"Running hook with {config}")
         if os.getenv("SKIP_HATCH_NPM_BUILDER"):
             LOGGER.info("Builder ignored. Skipping.")
+            if config.index is not None:
+                placeholder = target_dir / config.index
+                LOGGER.info(f"Creating placeholder index file: {placeholder}")
+                target_dir.mkdir(exist_ok=True)
+                placeholder.write_text("")
             return
         if target_exists(target_dir) and config.skip_exist:
             LOGGER.info("Target exists. Skipping.")
