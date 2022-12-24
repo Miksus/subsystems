@@ -1,4 +1,5 @@
 from multiprocessing import Process
+import random
 import signal
 from threading import Thread
 from textwrap import dedent
@@ -13,13 +14,17 @@ import requests
 from subsystems.config import Config
 from subsystems.systems import Subsystems
 
+@pytest.fixture()
+def port():
+    return random.randint(10000, 65534)
+
 @pytest.mark.parametrize("server",
     [
         'uvicorn.Server',
         pytest.param('hypercorn.run.run', marks=pytest.mark.skip("Not yet supported"))
     ]
 )
-def test_fastapi(tmpdir, request, tmpsyspath, server):
+def test_fastapi(tmpdir, request, tmpsyspath, port, server):
     tmpsyspath.append(str(tmpdir))
     randstr = uuid.uuid4().hex
     module_name = f"config_{randstr}"
@@ -44,7 +49,7 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
                         "type": server,
                         "workers": 1,
                         "host": "localhost",
-                        "port": "8999"
+                        "port": f"{port}"
                     }
                 }
             }
@@ -53,7 +58,7 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
     t = Thread(target=systems.run, args=())
     t.start()
     try:
-        output = requests.get("http://localhost:8999/")
+        output = requests.get(f"http://localhost:{port}/")
         assert output.status_code == 200
         assert output.text == '"Hello world"'
     finally:
@@ -67,13 +72,12 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
         'gunicorn',
     ]
 )
-def test_flask(tmpdir, request, tmpsyspath, server):
+def test_flask(tmpdir, request, tmpsyspath, server, port):
     if server.startswith("gunicorn") and sys.platform == "win32":
         pytest.skip(reason="Gunicorn not supported on Windows")
     tmpsyspath.append(str(tmpdir))
     randstr = uuid.uuid4().hex
-    test_name = request.node.originalname
-    module_name = f"config_{test_name}"
+    module_name = f"config_{randstr}"
 
     file = tmpdir.mkdir("mydir").join(f"{module_name}.py")
     file.write(dedent("""
@@ -95,7 +99,7 @@ def test_flask(tmpdir, request, tmpsyspath, server):
                     "server": {
                         "type": server,
                         'host': 'localhost',
-                        'port': '8999'
+                        'port': f"{port}"
                     }
                 }
             }
@@ -105,7 +109,7 @@ def test_flask(tmpdir, request, tmpsyspath, server):
     t = Thread(target=systems["backend"].run, args=())
     t.start()
     try:
-        output = requests.get("http://localhost:8999/")
+        output = requests.get(f"http://localhost:{port}/")
         assert output.status_code == 200
         assert output.text == 'Hello world'
     finally:
