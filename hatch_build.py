@@ -57,7 +57,10 @@ def copy_build(source, target):
 
 def target_exists(dir):
     path = Path(dir)
-    return any(Path(path).iterdir())
+    try:
+        return any(Path(path).iterdir())
+    except FileNotFoundError:
+        return False
 
 
 @dataclass
