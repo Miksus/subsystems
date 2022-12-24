@@ -42,7 +42,7 @@ jobs:
         
     - name: Run test suite
       run: |
-        python -m pytest --cov=subsystems --cov-report=xml subsystems/tests --no-build
+        python -m pytest --cov=subsystems --cov-report=xml subsystems/tests
         
     - name: Upload test coverage
       uses: codecov/codecov-action@v2
