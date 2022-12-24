@@ -72,11 +72,11 @@ class AutoAPI(FastAPI):
     def _set_events(self, scheduler):
         @self.on_event("startup")
         async def start():
-            await scheduler.serve()
+            asyncio.create_task(scheduler.serve())
 
         @self.on_event("shutdown")
         async def shutdown():
-            await scheduler.session.shut_down()
+            scheduler.session.shut_down()
 
     def add_server(self, serv):
         self.scheduler.params(**{self.arg_server: serv})
