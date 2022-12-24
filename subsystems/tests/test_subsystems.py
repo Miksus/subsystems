@@ -20,10 +20,11 @@ from subsystems.systems import Subsystems
     ]
 )
 def test_fastapi(tmpdir, request, tmpsyspath, server):
-    test_name = request.node.originalname
-    module_name = f"config_{test_name}"
+    tmpsyspath.append(str(tmpdir))
+    randstr = uuid.uuid4().hex
+    module_name = f"config_{randstr}"
 
-    file = tmpdir.mkdir("mydir").join(f"{module_name}.py")
+    file = tmpdir.join(f"{module_name}.py")
     file.write(dedent("""
     from fastapi import FastAPI
     myapp = FastAPI(description="Myapplication")
@@ -36,27 +37,27 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
             "apps": {
                 "backend": {
                     "app": {
-                        "instance": f"mydir.{module_name}:myapp",
+                        "instance": f"{module_name}:myapp",
                         "lazy_load": True
                     },
                     "server": {
                         "type": server,
                         "workers": 1,
                         "host": "localhost",
-                        "port": "8000"
+                        "port": "8999"
                     }
                 }
             }
         }
     )
-    t = Process(target=systems.run, args=())
+    t = Thread(target=systems.run, args=())
     t.start()
     try:
-        output = requests.get("http://localhost:8000/")
+        output = requests.get("http://localhost:8999/")
         assert output.status_code == 200
         assert output.text == '"Hello world"'
     finally:
-        t.kill()
+        systems["backend"].handle_exit(1, None)
 
 
 @pytest.mark.parametrize("server",
@@ -67,6 +68,8 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
     ]
 )
 def test_flask(tmpdir, request, tmpsyspath, server):
+    if server.startswith("gunicorn") and sys.platform == "win32":
+        pytest.skip(reason="Gunicorn not supported on Windows")
     tmpsyspath.append(str(tmpdir))
     randstr = uuid.uuid4().hex
     test_name = request.node.originalname
