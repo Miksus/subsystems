@@ -89,7 +89,7 @@ def test_static_app(tmpdir):
                         "app": {
                             "type": "subsystems.apps.StaticApp",
                             "path": "mydir/mycontent.html",
-                            "static_path": str(tmpdir / "static"),
+                            "static_path": str(tmpdir),
                             "description": "My app",
                         },
                         "server": {
