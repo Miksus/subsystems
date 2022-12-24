@@ -17,6 +17,7 @@ Supported web server frameworks:
 - Uvicorn
 - Waitress
 - Werkzeug
+- Guvicorn (experimential)
 
 ## Installation
 
