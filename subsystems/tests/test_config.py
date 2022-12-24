@@ -149,6 +149,9 @@ def test_scheduler(tmpdir, request):
     pytest.param(None, "Rocketry", "rocketry.Rocketry", "rocketry.Rocketry", id="rocketry"),
 ])
 def test_aliases(server, app, server_cls, app_cls, port):
+    kwds = {}
+    if server_cls.startswith("waitress"):
+        kwds = {"clear_untrusted_proxy_headers": True}
     if server is None:
         systems = Config.parse(
             {
@@ -174,7 +177,8 @@ def test_aliases(server, app, server_cls, app_cls, port):
                         "server": {
                             "type": server,
                             "host": "localhost",
-                            "port": port
+                            "port": port,
+                            **kwds
                         }
                     }
                 }
