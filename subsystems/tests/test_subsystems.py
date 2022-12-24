@@ -2,6 +2,7 @@
 from threading import Thread
 from textwrap import dedent
 import sys
+import time
 import uuid
 
 import pytest
@@ -50,12 +51,15 @@ def test_fastapi(tmpdir, request, tmpsyspath, port, server):
     )
     t = Thread(target=systems.run, args=())
     t.start()
+    time.sleep(0.01)
     try:
         output = requests.get(f"http://localhost:{port}/")
         assert output.status_code == 200
         assert output.text == '"Hello world"'
     finally:
         systems["backend"].handle_exit(1, None)
+    while t.is_alive():
+        time.sleep(0.01)
 
 
 @pytest.mark.parametrize("server",
