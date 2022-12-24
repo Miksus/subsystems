@@ -11,6 +11,7 @@ packages = ["subsystems"]
 source="app"
 target="subsystems/app"
 skip_exist=false
+index="index.html"
 
 [project.scripts]
 my-client = "subsystems.main_cli:main"
