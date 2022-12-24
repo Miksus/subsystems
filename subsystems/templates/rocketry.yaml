@@ -5,7 +5,7 @@ apps:
       path: '${{ __dir_subsystems__ }}/app/index.html'
       static_path: '${{ __dir_subsystems__ }}/app/static'
       custom_routes:
-        _config: {'backend_url': 'http://${{ host_back or '127.0.0.1' }}:${{ host_back or '8080' }}'}
+        _config: {'backend_url': "http://${{ host_back or '127.0.0.1' }}:${{ host_back or '8080' }}"}
     server:
       type: 'uvicorn.Server'
       host: '${{ host_front or '127.0.0.1' }}'
