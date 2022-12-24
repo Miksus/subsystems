@@ -8,7 +8,8 @@ from fastapi.testclient import TestClient
 import pytest
 import uvicorn
 from subsystems.config import Config
-from subsystems.systems import Server, Subsystems
+from subsystems.systems import Subsystems
+from subsystems.servers import ServerBase
 from subsystems.utils.modules import load_instance
 
 def test_fastapi():
@@ -31,7 +32,7 @@ def test_fastapi():
     assert isinstance(sys, Subsystems)
 
     serv = sys["backend"]
-    assert isinstance(serv, Server)
+    assert isinstance(serv, ServerBase)
     assert isinstance(serv.app, FastAPI)
     assert isinstance(serv.server, uvicorn.Server)
 
@@ -68,7 +69,7 @@ def test_custom_fastapi(tmpdir, request):
         assert isinstance(systems, Subsystems)
 
         serv = systems["backend"]
-        assert isinstance(serv, Server)
+        assert isinstance(serv, ServerBase)
         assert isinstance(serv.app, FastAPI)
         assert isinstance(serv.server, uvicorn.Server)
         assert serv.server.config.app.description == "Myapplication"
