@@ -66,7 +66,7 @@ def test_fastapi(tmpdir, request, tmpsyspath, port, server):
     [
         'werkzeug.serving.make_server',
         'waitress.create_server',
-        'gunicorn',
+        pytest.param('gunicorn', marks=pytest.mark.skip("No way to shut down")),
     ]
 )
 def test_flask(tmpdir, request, tmpsyspath, server, port):
