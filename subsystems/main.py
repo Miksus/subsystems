@@ -35,6 +35,7 @@ def main(
         if app is None:
             subsystems.run()
         else:
+            app = app[0] if len(app) == 1 else app
             subsystems[app].run()
     elif command == "init":
         tmpl = kwargs.pop("template", "rocketry")
