@@ -1,8 +1,12 @@
 import asyncio
 import signal
-from typing import Dict, List, Type, Union
+from typing import TYPE_CHECKING, Dict, List, Type, Union
 
 from subsystems.utils.modules import load_instance
+
+if TYPE_CHECKING:
+    import uvicorn
+    from waitress.server import MultiSocketServer
 
 def create_server(cls_name:str, **kwargs) -> 'ServerBase':
     try:
@@ -73,6 +77,8 @@ class UvicornServer(ServerBase):
     use_instance = True
     use_import_path = True
 
+    instance: 'uvicorn.Server'
+
     def create(self):
         import uvicorn 
         return uvicorn.Server(uvicorn.Config(app=self.app_instance, **self.config))
@@ -97,6 +103,8 @@ class HypercornServer(ServerBase):
 class WaitressServer(ServerBase):
     use_instance = True
     use_import_path = True
+
+    instance: 'MultiSocketServer'
 
     def create(self):
         import waitress
