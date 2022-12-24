@@ -64,7 +64,7 @@ def test_fastapi(tmpdir, request, tmpsyspath, server):
     [
         'werkzeug.serving.make_server',
         'waitress.create_server',
-        'gunicorn.app.wsgiapp.WSGIApplication',
+        'gunicorn',
     ]
 )
 def test_flask(tmpdir, request, tmpsyspath, server):
