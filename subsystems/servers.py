@@ -83,9 +83,9 @@ class HypercornServer(ServerBase):
     use_instance = False
     use_import_path = True
 
-    def create(self):
-        import hypercorn
-        return hypercorn.run.run(application=self.app_path, **self.config)
+    def run(self):
+        from hypercorn.run import run
+        return run(application=self.app_path, **self.config)
 
     def handle_exit(self, *args, **kwargs):
         self.instance.close(*args, **kwargs)
