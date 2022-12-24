@@ -97,36 +97,3 @@ class AutoAPI(FastAPI):
         if sched is not None:
             kwargs['scheduler'] = InstanceConfig(**sched).create()
         return cls(**kwargs)
-
-class ClusterApp:
-    
-    def __init__(self, apps:Dict[str, 'Server']):
-        self.apps = apps
-
-    async def serve(self, *args, **kwargs):
-        tasks = []
-        for name, app in self.apps.items():
-            task = asyncio.create_task(app.serve(*args, **kwargs))
-            tasks.append(task)
-        await asyncio.wait(tasks)
-    
-    def run(self):
-        asyncio.run(self.serve())
-
-    @classmethod
-    def from_config(cls, **kwargs):
-        from .config import AppConfig
-        apps = {}
-        for name, conf in kwargs.items():
-            app = AppConfig(**conf).create()
-            apps[name] = app
-        return cls(apps)
-
-    def handle_exit(self, *args, **kwargs):
-        print(self.apps)
-        for system in self.apps.values():
-            serv = system.server
-            if hasattr(serv, "handle_exit"):
-                serv.handle_exit(*args, **kwargs)
-            else:
-                serv.session.shut_down(force=True)
