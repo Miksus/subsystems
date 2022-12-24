@@ -3,7 +3,7 @@ apps:
     app:
       type: 'subsystems.apps.StaticApp'
       path: '${{ __dir_subsystems__ }}/app/index.html'
-      static_path: '${{ __dir_subsystems__ }}/app/static'
+      static_path: '${{ __dir_subsystems__ }}/app'
       custom_routes:
         _config: {'backend_url': "http://${{ host_back or '127.0.0.1' }}:${{ host_back or '8080' }}"}
     server:

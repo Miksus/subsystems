@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException
 from rocketry import Rocketry
 
 from subsystems.utils.modules import load_instance
@@ -26,8 +27,7 @@ class StaticApp(FastAPI):
         self._set_prebuilt_routes()
 
     def _set_prebuilt_routes(self):
-        if self.static_path is not None:
-            self.mount(self.static_route, StaticFiles(directory=self.static_path), name="static")
+        static = StaticFiles(directory=self.static_path)
         
         @self.get("/")
         async def get_root(request: Request):
@@ -39,8 +39,15 @@ class StaticApp(FastAPI):
             if full_path in self.custom_routes:
                 content = self.custom_routes[full_path]
                 return HTMLResponse(content) if isinstance(content, str) else JSONResponse(content)
-            return HTMLResponse(self.content)
-        
+            try:
+                static_resp = await static.get_response(full_path, request.scope)
+            except HTTPException as exc:
+                if exc.status_code == 404:
+                    # We return the app and hope the path is found there
+                    return HTMLResponse(self.content)
+                raise
+            else:
+                return static_resp
 
 
 class RocketryAPI(FastAPI):
