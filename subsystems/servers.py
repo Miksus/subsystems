@@ -29,7 +29,7 @@ class ServerBase:
 
     _cls_servers: Dict[str, 'ServerBase'] = {}
 
-    def __init__(self, *, app_instance, app_path:str, config:dict=None):
+    def __init__(self, *, app_instance=None, app_path:str=None, config:dict=None):
         self.app_instance = app_instance
         self.app_path = app_path
         self.config = config

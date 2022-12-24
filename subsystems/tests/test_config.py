@@ -236,5 +236,5 @@ def test_aliases(server, app, server_cls, app_cls):
                 }
             }
         )
-    assert isinstance(systems['myapp'].server, load_instance(server_cls))
-    assert isinstance(systems['myapp'].app, load_instance(app_cls))
+    assert isinstance(systems['myapp'].instance, load_instance(server_cls))
+    assert isinstance(systems['myapp'].app_instance, load_instance(app_cls))

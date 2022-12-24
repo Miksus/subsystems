@@ -10,7 +10,7 @@ from jinja2 import Environment
 
 from subsystems.utils.modules import load_instance
 from .systems import Subsystems
-from .servers import create_server, get_server_class
+from .servers import create_server, get_server_class, DummyServer
 
 ROOT = Path(__file__).parent
 PATH_APP = ROOT / "app"
@@ -96,10 +96,13 @@ class AppConfig(BaseModel):
     server: Optional[ServerConfig] = Field(description="Server to run the instance")
 
     def create(self):
-        if self.server.use_path_only:
+        if self.server is None:
+            instance = self.app.create()
+            server = DummyServer(app_instance=instance)
+        elif self.server.use_path_only:
             server = self.server.create(app_path=self.app.get_path())
         else:
-            instance = self.app.create(use_path=self.server.use_path_only)
+            instance = self.app.create()
             server = self.server.create(app_instance=instance)
         return server
 
