@@ -16,7 +16,7 @@ from subsystems.systems import Subsystems
 @pytest.mark.parametrize("server",
     [
         'uvicorn.Server',
-        'hypercorn.run.run'
+        pytest.param('hypercorn.run.run', marks=pytest.mark.skip("Not yet supported"))
     ]
 )
 def test_fastapi(tmpdir, request, tmpsyspath, server):
