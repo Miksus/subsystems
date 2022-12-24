@@ -1,11 +1,8 @@
-from multiprocessing import Process
-import random
-import signal
+
 from threading import Thread
 from textwrap import dedent
 import sys
 import uuid
-from pathlib import Path
 
 import pytest
 import requests

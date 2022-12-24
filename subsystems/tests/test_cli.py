@@ -1,8 +1,6 @@
 from pathlib import Path
-import sys
 from textwrap import dedent
 import uuid
-import signal
 import pytest
 from subsystems.main_cli import parse_args, main
 import subsystems

@@ -1,6 +1,5 @@
 import sys
 from textwrap import dedent
-import fastapi
 
 from rocketry import Rocketry
 from fastapi import FastAPI

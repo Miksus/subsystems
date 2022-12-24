@@ -3,7 +3,6 @@ from rocketry.conds import scheduler_cycles
 from rocketry import Rocketry
 
 from subsystems.apps import AutoAPI
-#from subsystems.apps import create_api, create_scheduler
 from fastapi.testclient import TestClient
 
 def do_success():
