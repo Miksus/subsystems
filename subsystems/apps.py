@@ -55,7 +55,6 @@ class AutoAPI(FastAPI):
     arg_server = '__server__'
 
     def __init__(self, scheduler:Rocketry, origins=None, route_config=None, **kwargs):
-        self.scheduler = scheduler
 
         super().__init__(scheduler=scheduler, **kwargs)
         self._set_events(scheduler)
@@ -79,7 +78,7 @@ class AutoAPI(FastAPI):
             scheduler.session.shut_down()
 
     def add_server(self, serv):
-        self.scheduler.params(**{self.arg_server: serv})
+        self.extra["scheduler"].params(**{self.arg_server: serv})
 
     def add_origins(self, origins):
         if origins is not None:
