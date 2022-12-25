@@ -1,22 +1,15 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 
-import { Alert, Col, Row, Container, Dropdown, Form, Button, Table, Tabs, Tab, Accordion, InputGroup, Badge, Card, Collapse, Navbar, Nav, Carousel } from 'react-bootstrap';
-import { Routes, Route, BrowserRouter, useParams, Link } from 'react-router-dom';
+import { Container, Navbar, Nav, Carousel } from 'react-bootstrap';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 
 import LivePage from './components/live.js';
 import TaskPage from './components/task.js';
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
     render() {
-        const logs = [
-            {name: "do_stuff", runtime: "2 sec"},
-        ];
         return (
             <div className="App">
                 <Navbar bg="dark" variant="dark">
@@ -49,9 +42,6 @@ class App extends React.Component {
 
 
 class AboutPage extends React.Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
         return (
             <div>

@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 
-import { Alert, Col, Row, Container, Dropdown, Form, Button, Table, Tabs, Tab, Accordion, InputGroup, Badge, Card, Collapse, Navbar, Nav } from 'react-bootstrap';
-import { Routes, Route, BrowserRouter, useParams, Link } from 'react-router-dom';
+import { Col, Row, Form, Button, Table, Card } from 'react-bootstrap';
+import { Routes, Route, useParams, Link } from 'react-router-dom';
 
 import { REFRESH, queryApi, getVariant, getStatus } from './utils.js'
 
@@ -60,7 +60,7 @@ class TaskPage extends React.Component {
 function TaskBox(props) {
     let { id } = useParams();
 
-    let task = props.tasks.filter(task => task.name == id)[0];
+    let task = props.tasks.filter(task => task.name === id)[0];
 
     if (typeof task == 'undefined') {
         return <div></div>
@@ -73,12 +73,8 @@ function TaskBox(props) {
 }
 
 class TaskMenu extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
     renderTask(task, index) {
-        const variant = getVariant(task.status);
         return (
             <tr key={index}>
                 <th>

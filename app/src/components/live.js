@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 
-import { Alert, Col, Row, Container, Dropdown, Form, Button, Table, Tabs, Tab, Accordion, InputGroup, Badge, Card, Collapse, Navbar, Nav } from 'react-bootstrap';
-import { Routes, Route, BrowserRouter, useParams, Link } from 'react-router-dom';
+import { Alert, Col, Row, Button, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
-import { REFRESH, queryApi, getVariant, getStatus } from './utils.js'
+import { REFRESH, queryApi } from './utils.js'
 
 class LivePage extends React.Component {
 
@@ -151,7 +151,7 @@ class LiveLogs extends React.Component {
 
     render() {
         console.log(this.props.logs)
-        const headers = Object.keys(this.props.logs.length != 0 ? this.props.logs[0]: {});
+        const headers = Object.keys(this.props.logs.length !== 0 ? this.props.logs[0]: {});
         return (
             <div>
                 <h2>Live Logs</h2>
